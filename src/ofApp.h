@@ -39,10 +39,12 @@ public:
     
     videoPlayers        _videoPlayers;
 
-    cocRecorder         _cocRecorder;
+    cocRecorder         _cocRecorderCam;
+    cocRecorder         _cocRecorderAll;
 
     // gonna render to framebuffer;
     ofFbo               _fbo;
+    ofFbo               _fboCam;
     
     bool                _needToSwapMovies;    
     bool                _bkgColorPickerEnabled;

@@ -6,6 +6,7 @@ void ofApp::setup(){
 
     // prepare to render in framebuffer
 	_fbo.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
+    _fboCam.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
 
     ofSetWindowTitle("CoCkeyer");
     ofBackground(0,0,0);
@@ -18,7 +19,8 @@ void ofApp::setup(){
     try {
         initGui();
         initGrabber();
-        _cocRecorder.init("out.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
+        _cocRecorderCam.init("cam.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
+        _cocRecorderAll.init("all.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
 
         _videoPlayers.initPlayers("bkgs");
         _greenscreen.setPixels(_grabber.getPixelsRef());    
@@ -49,6 +51,15 @@ void ofApp::update(){
 void ofApp::draw(){
     ofSetColor(255);
 
+    _fboCam.begin();
+    {
+        _grabber.draw(getLeftTopX(), getLeftTopY());
+    }
+    _fboCam.end();
+
+   
+    _cocRecorderCam.addFrame(_fboCam);
+
     // draw into the fbo
 	_fbo.begin();
     {
@@ -58,9 +69,19 @@ void ofApp::draw(){
     }
     _fbo.end();
 
-    _cocRecorder.addFrame(_fbo);
+    _cocRecorderAll.addFrame(_fbo);
 
     _fbo.draw(0, 0);
+
+    ofPushStyle();
+
+	ofSetColor( _cocRecorderCam.getColoredStatus());
+	ofDrawCircle( 15, 15, 10 );
+
+    ofSetColor( _cocRecorderAll.getColoredStatus());
+	ofDrawCircle( 40, 15, 10 );
+
+	ofPopStyle();    
 
 
     if (_guiVisible) {
@@ -117,7 +138,8 @@ void ofApp::keyReleased(int key){
     }
 
     if (key == 'r') {
-        _cocRecorder.toggleRecording();
+        _cocRecorderAll.toggleRecording();
+        _cocRecorderCam.toggleRecording();
     }
 }
 
