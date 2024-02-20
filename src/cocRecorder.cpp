@@ -75,3 +75,17 @@ void cocRecorder::toggleRecording() {
 bool cocRecorder::isRecording () {
     return _recorder.isRecording();
 }
+
+
+ofColor cocRecorder::getColoredStatus () {
+    if (_recorder.isRecording()) {
+        return ofColor::red;
+    }
+
+    if (_recorder.isReady()) {
+        return ofColor::green;
+    }
+
+    // if not recording, but not ready, it's still processing a previous recording
+    return ofColor::yellow;
+}

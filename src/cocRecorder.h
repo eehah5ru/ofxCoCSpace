@@ -31,6 +31,8 @@ class cocRecorder {
 
     bool isRecording();
 
+    ofColor getColoredStatus ();
+
     private:
 
     std::string _baseName = "output.mp4";
