@@ -15,7 +15,8 @@
 			"*.ipp": "cpp",
 			"chrono": "cpp",
 			"functional": "cpp",
-			"atomic": "cpp"
+			"atomic": "cpp",
+			"new": "cpp"
 		}
 	}
 }
