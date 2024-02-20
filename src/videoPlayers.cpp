@@ -20,7 +20,7 @@ videoPlayers::~videoPlayers() {
 
 
 void videoPlayers::initPlayers(string path) {
-    cerr << "searching for videos in " << path << "\n";
+    LOG_VP_NOTICE() << "searching for videos in " << path << "\n";
     ofDirectory dir;
     dir.open(path);
     dir.allowExt("mov");
@@ -29,7 +29,7 @@ void videoPlayers::initPlayers(string path) {
     dir.listDir();
 
     if (dir.size() == 0) {
-        ofLogError() << "video data directory is empty!";
+        LOG_VP_ERROR() << "video data directory is empty!";
         
         throw std::runtime_error("video data directory is empty!");
     }
@@ -37,6 +37,8 @@ void videoPlayers::initPlayers(string path) {
     for (auto i: dir.getFiles()) {
         addVideoPlayer(i.getAbsolutePath());
     }
+
+    LOG_VP_NOTICE() << "videos to play: " << _players.size();
     
     changePlayer();
 
@@ -53,16 +55,94 @@ ofVideoPlayer* videoPlayers::current() {
     return _players.at(_curPlayerIndex);
 }
 
+string videoPlayers::getCurrentMovieName () {
+    ofFile f = ofFile(current()->getMoviePath());
+    
+    return f.getFileName();
+}
+
+void videoPlayers::update () {
+    //_videoPlayers.current()->update();
+
+    if (!_isPlaying) {
+        return;
+    }
+   
+   // prepare new movie
+    if (ofInRange(current()->getPosition(), 0.8, 0.9)) {
+        _needToSwapMovies = true;
+    }
+    
+    if (ofInRange(current()->getPosition(), 0.99, 1)) {
+        if (_needToSwapMovies) {
+            changePlayer();
+        }
+    }
+    
+    if (current()->isLoaded() && _isPlaying && !current()->isPlaying()) {
+        start();
+    }
+    
+    current()->update();
+}
+
+void videoPlayers::start () {
+    if (_isPlaying && current()->isPlaying()) {
+        return;
+    }
+
+    // silently sync with global players state
+    if (_isPlaying) {
+        current()->play();
+        return;
+    }
+
+    LOG_VP_NOTICE() << "start playing video: " << getCurrentMovieName();
+
+    _isPlaying = true;
+    current()->play();
+    
+
+}
+
+void videoPlayers::stop () {
+    if (_isPlaying) {
+        LOG_VP_NOTICE() << "stop video: " << getCurrentMovieName();
+        _isPlaying = false;
+        current()->stop();
+        return;
+    }
+
+    if (current()->isPlaying()) {
+        current()->stop();
+    }
+
+}
+
+void videoPlayers::togglePlay () {
+    if (_isPlaying) {
+        stop();
+        return;
+    } 
+    start();
+}   
+ 
+
 
 void videoPlayers::changePlayer() {
+    LOG_VP_NOTICE() << "changing video";
     current()->stop();
     
-    _curPlayerIndex= ofRandom(0, _players.size() - 1);
+    _curPlayerIndex= ofRandom(0, _players.size());
+    _needToSwapMovies = false;
+
+    LOG_VP_NOTICE() << "current video: " << getCurrentMovieName();
 }
 
 
 void videoPlayers::addVideoPlayer (const string& path) {
-    ofLogNotice() << "add video: " + path;
+    LOG_VP_NOTICE() << "add video: " + path;
+
     ofVideoPlayer* result = new ofVideoPlayer();
     result->loadAsync(path);
     result->setLoopState(OF_LOOP_NONE);

@@ -1,3 +1,5 @@
+#pragma once
+
 //
 //  videoPlayers.h
 //  deSerialKeyer
@@ -8,6 +10,14 @@
 
 #include "ofMain.h"
 
+// Logging macros
+#define LOG_VP_ERROR() ofLogError( "videoPlayers" ) << __FUNCTION__ << ": "
+#define LOG_VP_WARNING() ofLogWarning( "videoPlayers" ) << __FUNCTION__ << ": "
+#define LOG_VP_NOTICE() ofLogNotice( "videoPlayers" ) << __FUNCTION__ << ": "
+#define LOG_VP_VERBOSE() ofLogVerbose( "videoPlayers" ) << __FUNCTION__ << ": "
+#define LOG_VP() LOG_VP_NOTICE()
+
+
 #ifndef deSerialKeyer_videoPlayers_h
 #define deSerialKeyer_videoPlayers_h
 
@@ -16,6 +26,7 @@ class videoPlayers {
     
     int _curPlayerIndex = 0;
     
+    bool _isPlaying = false;
 public:
     videoPlayers ();
     ~videoPlayers ();
@@ -25,8 +36,14 @@ public:
     void free ();
     
     ofVideoPlayer* current ();
+
+    string getCurrentMovieName ();
     
     void changePlayer ();
+
+    void togglePlay ();
+    void stop ();
+    void start ();
     
     // interface to ofApp
     void update ();
@@ -35,6 +52,9 @@ public:
     
 private:
     void addVideoPlayer(const string& path);
+
+    bool _needToSwapMovies = false;
+
     
 };
 

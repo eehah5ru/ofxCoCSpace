@@ -42,7 +42,7 @@ void ofApp::update(){
         _greenscreen.setPixels(_grabber.getPixelsRef());
     }
 
-    _videoPlayers.current()->update();
+    _videoPlayers.update();
 
     // ofLogNotice() << "test toggle val: " << _testToggleVal;
 }
@@ -111,6 +111,9 @@ void ofApp::keyPressed(int key){
         _mouseVisible = !_mouseVisible;
     }
 
+    if (key == 'n') {
+        _videoPlayers.changePlayer();
+    }
 
 }
 
@@ -128,13 +131,7 @@ void ofApp::keyReleased(int key){
     }
 
     if (key == 'p') {
-        if (_videoPlayers.current()->isPlaying()) {
-            _videoPlayers.current()->stop();
-        } 
-        else {
-            _videoPlayers.current()->play();
-        }
-        
+        _videoPlayers.togglePlay();        
     }
 
     if (key == 'r') {
