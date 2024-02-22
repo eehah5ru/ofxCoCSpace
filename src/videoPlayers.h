@@ -44,6 +44,8 @@ public:
     
     void changePlayer ();
 
+    bool goToPrevVideo();
+    bool goToNextVideo();
     bool goToNextFolder();
     bool goToPrevFolder();
 
@@ -70,7 +72,11 @@ private:
     
     bool goToFolder(int dirIndex);
 
+    bool goToVideo(int newPlayerIndex);
+
     bool hasFolder(int dirIndex);
+
+    bool hasVideo(int videIndex);
 
     string mkFolderPath(int dirIndex);    
 };

@@ -77,7 +77,9 @@ void videoPlayers::update () {
     
     if (ofInRange(current()->getPosition(), 0.99, 1)) {
         if (_needToSwapMovies) {
-            changePlayer();
+            if ((!goToNextVideo() || goToVideo(0))) {
+                LOG_VP_WARNING() << "update: failed to go to the next video";
+            }
         }
     }
     
@@ -139,14 +141,8 @@ void videoPlayers::togglePlay () {
 
 
 void videoPlayers::changePlayer() {
-    LOG_VP_NOTICE() << "changing video";
-    current()->stop();
-    //current()->setPosition(0);
-    
-    _curPlayerIndex= ofRandom(0, _players.size());
-    _needToSwapMovies = false;
-
-    LOG_VP_NOTICE() << "current video: " << getCurrentMovieName();
+    LOG_VP_NOTICE() << "rendomely changing video";
+    goToVideo(ofRandom(0, _players.size()));
 }
 
 
@@ -197,9 +193,43 @@ bool videoPlayers::goToFolder(int dirIndex) {
     LOG_VP_NOTICE() << "videos to play: " << _players.size(); 
 
     _currentDirIndex = dirIndex;
-    changePlayer();
+    goToVideo(0);
 
     return true;
+}
+
+bool videoPlayers::goToVideo(int newPlayerIndex) {
+    if (!hasVideo(newPlayerIndex)) {
+        LOG_VP_WARNING() << "goToVideo: no video with index " << newPlayerIndex;
+        return false;
+    }
+
+    current()->stop();
+
+    _curPlayerIndex = newPlayerIndex;
+    _needToSwapMovies = false;
+
+    LOG_VP_NOTICE() << "goToVideo: current video index: " << newPlayerIndex;
+
+    return true;
+}
+
+bool videoPlayers::goToNextVideo() {
+    if (!hasVideo(_curPlayerIndex + 1)) {
+        LOG_VP_WARNING() << "goToNextVideo: already last video";
+        return false;
+    }
+
+    return goToVideo(_curPlayerIndex + 1);
+}
+
+bool videoPlayers::goToPrevVideo() {
+    if (!hasVideo(_curPlayerIndex - 1)) {
+        LOG_VP_WARNING() << "goToPrevVideo: already first video";
+        return false;
+    }
+
+    return goToVideo(_curPlayerIndex - 1);
 }
 
 bool videoPlayers::goToNextFolder() {
@@ -228,5 +258,17 @@ bool videoPlayers::hasFolder (int dirIndex) {
     ofDirectory dir(mkFolderPath(dirIndex));
 
     return dir.exists();
+}
+
+bool videoPlayers::hasVideo(int playerIndex) {
+    if (playerIndex < 0) {
+        return false;
+    }
+
+    if (_players.size() <= playerIndex) {
+        return false;
+    }
+
+    return true;
 }
 

@@ -146,8 +146,16 @@ void ofApp::keyReleased(int key){
         _status.compose(_videoPlayers.goToPrevFolder());
     }
 
-    if (key == 'l') {
+    if (key == 'k') {
         _status.compose(_videoPlayers.goToNextFolder());
+    }
+
+    if (key == 'h') {
+        _status.compose(_videoPlayers.goToPrevVideo());
+    }
+
+    if (key == 'l') {
+        _status.compose(_videoPlayers.goToNextVideo());
     }
 }
 
