@@ -15,33 +15,21 @@ videoPlayers::videoPlayers () {
 
 
 videoPlayers::~videoPlayers() {
-    
+    free();
 }
 
 
-void videoPlayers::initPlayers(string path) {
-    LOG_VP_NOTICE() << "searching for videos in " << path << "\n";
-    ofDirectory dir;
-    dir.open(path);
-    dir.allowExt("mov");
-    dir.allowExt("mp4");
-    
-    dir.listDir();
+void videoPlayers::initPlayers(string basePath) {
+    LOG_VP() << "initPlayers: with basePath:" << basePath;
+    _basePath = basePath;
 
-    if (dir.size() == 0) {
-        LOG_VP_ERROR() << "video data directory is empty!";
-        
-        throw std::runtime_error("video data directory is empty!");
+    if (!goToFolder(_currentDirIndex)) {
+        throw runtime_error("initPlayers: failed");
     }
 
-    for (auto i: dir.getFiles()) {
-        addVideoPlayer(i.getAbsolutePath());
-    }
+    _initialized = true;
 
-    LOG_VP_NOTICE() << "videos to play: " << _players.size();
-    
-    changePlayer();
-
+    LOG_VP() << "initPlayers: done";
 }
 
 
@@ -49,9 +37,23 @@ void videoPlayers::free () {
     for (auto i: _players) {
         delete i;
     }
+
+    _players.clear();
 }
 
 ofVideoPlayer* videoPlayers::current() {
+    if (_players.size() == 0) {
+        LOG_VP_ERROR() << "current: no current video!";
+        throw out_of_range("current: no current video");
+    }
+
+    if (_players.size() <= _curPlayerIndex) {
+        LOG_VP_ERROR() << "current: _curPlayerIndex is too big";
+        LOG_VP_ERROR() << "_curPlayerIndex = " << _curPlayerIndex;
+        LOG_VP_ERROR() << "videos count: " << _players.size();
+        throw out_of_range("current: _curPlayerIndex is too big");
+    }
+
     return _players.at(_curPlayerIndex);
 }
 
@@ -82,6 +84,13 @@ void videoPlayers::update () {
     if (current()->isLoaded() && _isPlaying && !current()->isPlaying()) {
         start();
     }
+
+    if (_isPlaying) {
+        current()->play();
+    } else {
+        current()->stop();
+    }
+
     
     current()->update();
 }
@@ -152,3 +161,72 @@ void videoPlayers::addVideoPlayer (const string& path) {
     
     _players.push_back(result);
 }
+
+// change directory and reload videos
+bool videoPlayers::goToFolder(int dirIndex) {
+    LOG_VP() << "goToFolder: searching for videos in " << mkFolderPath(dirIndex);
+    
+    if (!hasFolder(dirIndex)) {
+        LOG_VP_ERROR() << "dir does not exist: " << mkFolderPath(dirIndex);
+        return false;
+    }
+    
+    ofDirectory dir;
+    dir.open(mkFolderPath(dirIndex));
+
+    dir.allowExt("mov");
+    dir.allowExt("mp4");
+    
+    dir.listDir(); 
+
+    if (dir.size() == 0) {
+        LOG_VP_ERROR() << "video data directory is empty!";
+        return false;
+        //throw std::runtime_error("video data directory is empty!");
+    }
+
+    if (_initialized) {
+        current()->stop();
+        free();
+    }
+
+    for (auto i: dir.getFiles()) {
+        addVideoPlayer(i.getAbsolutePath());
+    }
+
+    LOG_VP_NOTICE() << "videos to play: " << _players.size(); 
+
+    _currentDirIndex = dirIndex;
+    changePlayer();
+
+    return true;
+}
+
+bool videoPlayers::goToNextFolder() {
+    if (!hasFolder(_currentDirIndex + 1)) {
+        LOG_VP_ERROR() << "goToNextFolder: already in the last folder";
+        return false;
+    }
+
+    return goToFolder(_currentDirIndex + 1);
+}
+
+bool videoPlayers::goToPrevFolder() {
+    if (!hasFolder(_currentDirIndex - 1)) {
+        LOG_VP_ERROR() << "goToPrevFolder: already in the first folder";
+        return false;
+    }
+
+    return goToFolder(_currentDirIndex - 1);
+}
+
+string videoPlayers::mkFolderPath(int dirIndex) {
+    return _basePath + "_" + std::to_string(dirIndex);
+}
+
+bool videoPlayers::hasFolder (int dirIndex) {
+    ofDirectory dir(mkFolderPath(dirIndex));
+
+    return dir.exists();
+}
+

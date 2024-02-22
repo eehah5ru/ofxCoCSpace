@@ -56,7 +56,6 @@ void ofApp::draw(){
         _grabber.draw(getLeftTopX(), getLeftTopY());
     }
     _fboCam.end();
-
    
     _cocRecorderCam.addFrame(_fboCam);
 
@@ -137,6 +136,14 @@ void ofApp::keyReleased(int key){
     if (key == 'r') {
         _cocRecorderAll.toggleRecording();
         _cocRecorderCam.toggleRecording();
+    }
+
+    if (key == 'j') {
+        _videoPlayers.goToPrevFolder();
+    }
+
+    if (key == 'l') {
+        _videoPlayers.goToNextFolder();
     }
 }
 

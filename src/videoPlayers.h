@@ -27,6 +27,7 @@ class videoPlayers {
     int _curPlayerIndex = 0;
     
     bool _isPlaying = false;
+
 public:
     videoPlayers ();
     ~videoPlayers ();
@@ -37,9 +38,14 @@ public:
     
     ofVideoPlayer* current ();
 
+
+
     string getCurrentMovieName ();
     
     void changePlayer ();
+
+    bool goToNextFolder();
+    bool goToPrevFolder();
 
     void togglePlay ();
     void stop ();
@@ -48,14 +54,25 @@ public:
     // interface to ofApp
     void update ();
     
-    void draw (int x, int y, int w, int h);
+    //void draw (int x, int y, int w, int h);
     
 private:
-    void addVideoPlayer(const string& path);
-
+    
     bool _needToSwapMovies = false;
 
+    int _currentDirIndex = 0;
+
+    bool _initialized = false;
+
+    std::string _basePath = "bkgs";
+
+    void addVideoPlayer(const string& path);
     
+    bool goToFolder(int dirIndex);
+
+    bool hasFolder(int dirIndex);
+
+    string mkFolderPath(int dirIndex);    
 };
 
 #endif
