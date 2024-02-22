@@ -94,6 +94,7 @@ void videoPlayers::start () {
     // silently sync with global players state
     if (_isPlaying) {
         current()->play();
+        current()->setPosition(0);
         return;
     }
 
@@ -101,8 +102,7 @@ void videoPlayers::start () {
 
     _isPlaying = true;
     current()->play();
-    
-
+    current()->setPosition(0);
 }
 
 void videoPlayers::stop () {
@@ -132,6 +132,7 @@ void videoPlayers::togglePlay () {
 void videoPlayers::changePlayer() {
     LOG_VP_NOTICE() << "changing video";
     current()->stop();
+    //current()->setPosition(0);
     
     _curPlayerIndex= ofRandom(0, _players.size());
     _needToSwapMovies = false;
