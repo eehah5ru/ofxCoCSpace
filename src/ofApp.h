@@ -6,6 +6,7 @@
 
 #include "videoPlayers.h"
 #include "cocRecorder.h"
+#include "utils.h"
 
 
 #define GRAB_WIDTH  1920
@@ -50,6 +51,8 @@ public:
     bool                _bkgColorPickerEnabled;
     bool                _mouseVisible;
     bool _guiVisible;
+
+    Status _status = Status::neutral();
 
     ofPoint _dragStart;
     ofPoint _greenPixelPos;

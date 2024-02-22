@@ -44,6 +44,8 @@ void ofApp::update(){
 
     _videoPlayers.update();
 
+    _status.update();
+
     // ofLogNotice() << "test toggle val: " << _testToggleVal;
 }
 
@@ -80,7 +82,9 @@ void ofApp::draw(){
     ofSetColor( _cocRecorderAll.getColoredStatus());
 	ofDrawCircle( 40, 15, 10 );
 
-	ofPopStyle();    
+	ofPopStyle();
+
+    _status.draw(65, 15); 
 
 
     if (_guiVisible) {
@@ -139,11 +143,11 @@ void ofApp::keyReleased(int key){
     }
 
     if (key == 'j') {
-        _videoPlayers.goToPrevFolder();
+        _status.compose(_videoPlayers.goToPrevFolder());
     }
 
     if (key == 'l') {
-        _videoPlayers.goToNextFolder();
+        _status.compose(_videoPlayers.goToNextFolder());
     }
 }
 
