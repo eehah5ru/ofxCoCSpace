@@ -11,8 +11,8 @@ void ofApp::setup(){
     ofSetWindowTitle("CoCkeyer");
     ofBackground(0,0,0);
     ofSetFrameRate(30);
-    ofSetFullscreen(true);
-    ofSetWindowShape(GRAB_WIDTH, GRAB_HEIGHT);
+    
+    //ofSetWindowShape(GRAB_WIDTH, GRAB_HEIGHT);
     
     ofSetVerticalSync(true);
 
@@ -46,16 +46,25 @@ void ofApp::update(){
 
     _status.update();
 
+
+    //ofLogNotice() << "width: " << ofGetWidth();
+    //ofLogNotice() << "height: " << ofGetHeight();
+
     // ofLogNotice() << "test toggle val: " << _testToggleVal;
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    // clear the screen;
+    ofSetColor(0,0,0);
+    ofFill();
+
     ofSetColor(255);
 
     _fboCam.begin();
     {
-        _grabber.draw(getLeftTopX(), getLeftTopY());
+        // relative to fbo!!
+        _grabber.draw(0, 0);
     }
     _fboCam.end();
    
@@ -64,27 +73,28 @@ void ofApp::draw(){
     // draw into the fbo
 	_fbo.begin();
     {
-        _videoPlayers.current()->draw(getLeftTopX(), getLeftTopY());
+        // drawing relative to fbo
+        _videoPlayers.current()->draw(0, 0);
 
-        _greenscreen.draw(getLeftTopX(), getLeftTopY(), GRAB_WIDTH, GRAB_HEIGHT, false);
+        _greenscreen.draw(0, 0, GRAB_WIDTH, GRAB_HEIGHT, false);
     }
     _fbo.end();
 
     _cocRecorderAll.addFrame(_fbo);
 
-    _fbo.draw(0, 0);
+    _fbo.draw(getLeftTopX(), getLeftTopY());
 
     ofPushStyle();
 
 	ofSetColor( _cocRecorderCam.getColoredStatus());
-	ofDrawCircle( 15, 15, 10 );
+	ofDrawCircle( getLeftTopX() + 15, getLeftTopY() + 15, 10 );
 
     ofSetColor( _cocRecorderAll.getColoredStatus());
-	ofDrawCircle( 40, 15, 10 );
+	ofDrawCircle( getLeftTopX() + 40, getLeftTopY() + 15, 10 );
 
 	ofPopStyle();
 
-    _status.draw(65, 15); 
+    _status.draw(getLeftTopX() + 65, getLeftTopY() + 15); 
 
 
     if (_guiVisible) {
@@ -116,6 +126,10 @@ void ofApp::keyPressed(int key){
 
     if (key == 'n') {
         _videoPlayers.changePlayer();
+    }
+
+    if (key == 'f') {
+        ofToggleFullscreen();
     }
 
 }
