@@ -35,12 +35,7 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     updateGui();
-
-    _grabber.update();  
-    
-    if(_grabber.isFrameNew()) {
-        _greenscreen.setPixels(_grabber.getPixelsRef());
-    }
+    updateGrabber();
 
     _videoPlayers.update();
 
@@ -63,8 +58,10 @@ void ofApp::draw(){
 
     _fboCam.begin();
     {
-        // relative to fbo!!
-        _grabber.draw(0, 0);
+        if (_cameraEnabled) {
+            // relative to fbo!!       
+            _grabber.draw(0, 0);
+        }
     }
     _fboCam.end();
    
@@ -76,7 +73,9 @@ void ofApp::draw(){
         // drawing relative to fbo
         _videoPlayers.current()->draw(0, 0);
 
-        _greenscreen.draw(0, 0, GRAB_WIDTH, GRAB_HEIGHT, false);
+        if (_cameraEnabled) {
+            _greenscreen.draw(0, 0, GRAB_WIDTH, GRAB_HEIGHT, false);
+        }
     }
     _fbo.end();
 
@@ -170,6 +169,12 @@ void ofApp::keyReleased(int key){
 
     if (key == 'l') {
         _status.compose(_videoPlayers.goToNextVideo());
+    }
+
+    // toggle camera grabber
+    if (key == 'c') {
+        _cameraEnabled = !_cameraEnabled;
+        LOG_APP_NOTICE() << "toggled camera " << _cameraEnabled;
     }
 }
 
@@ -338,6 +343,19 @@ void ofApp::updateGui () {
     _greenscreen.clipWhiteDetailMask = _detailMaskWhite;
     _greenscreen.clipBlackEndMask = _endMaskBlack;
     _greenscreen.clipWhiteEndMask = _endMaskWhite;
+}
+
+
+void ofApp::updateGrabber () {
+    if (!_cameraEnabled) {
+        return;
+    }
+
+    _grabber.update();  
+    
+    if(_grabber.isFrameNew()) {
+        _greenscreen.setPixels(_grabber.getPixelsRef());
+    }
 }
 
 // coordinates helpers

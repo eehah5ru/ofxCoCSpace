@@ -12,6 +12,13 @@
 #define GRAB_WIDTH  1920
 #define GRAB_HEIGHT 1080
 
+// Logging macros
+#define LOG_APP_ERROR() ofLogError( "app" ) << __FUNCTION__ << ": "
+#define LOG_APP_WARNING() ofLogWarning( "app" ) << __FUNCTION__ << ": "
+#define LOG_APP_NOTICE() ofLogNotice( "app" ) << __FUNCTION__ << ": "
+#define LOG_APP_VERBOSE() ofLogVerbose( "app" ) << __FUNCTION__ << ": "
+#define LOG_APP() LOG_APP_NOTICE()
+
 class ofApp : public ofBaseApp{
 
 public:
@@ -51,6 +58,7 @@ public:
     bool                _bkgColorPickerEnabled;
     bool                _mouseVisible;
     bool _guiVisible;
+    bool _cameraEnabled = true; // enabled by default
 
     Status _status = Status::neutral();
 
@@ -88,6 +96,8 @@ public:
     void initGui ();
 
     void updateGui ();
+
+    void updateGrabber ();
     
     // void updateBgColorFormGuiBgColor ();
     
