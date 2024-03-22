@@ -43,7 +43,8 @@ public:
     private:
 // attrs
     ofxGreenscreen      _greenscreen;
-    ofVideoGrabber      _grabber;
+    //ofVideoGrabber      _grabber;
+    ofVideoPlayer       _grabber;
     
     videoPlayers        _videoPlayers;
 

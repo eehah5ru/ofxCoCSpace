@@ -251,46 +251,51 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // 
 
 void ofApp::initGrabber () {
-    //we can now get back a list of devices.
-    vector<ofVideoDevice> devices = _grabber.listDevices();
-    
-    //
-    // show info and
-    // set DV-VCR as video input device
-    //
-    bool found = false;
-    
-    ofLogNotice() << "Webcams:";
-
-    for(int i = 0; i < devices.size(); i++){
-        ofLogNotice() << devices[i].id  << ": '" << devices[i].deviceName << "'";
-        if( devices[i].bAvailable ){
-            // set device to GoPro
-            if (string("'GoPro'").compare(devices[i].deviceName) == 0) {
-                ofLogNotice() << "setting webcam to Gopro";
-                _grabber.setDeviceID(i);
-                found = true;
-            }
-        } else {
-            ofLogNotice() << devices[i].deviceName << " is unavailable";
-        }
-        
-        // debug formats
-//        vector<ofVideoFormat> formats = devices[i].formats;
-//        for (auto j : formats) {
-//            cout << "\twidth: " << j.width << " height: " << j.height << endl;
-//        }
-        
-//        grabber.setDesiredFrameRate(25);
-    }
-    
-    if (!found) {
-        ofLogWarning() << "GoPro was not found. Fallback to device ID=0";
-        _grabber.setDeviceID(0);
-    }
-    
-    _grabber.initGrabber(GRAB_WIDTH, GRAB_HEIGHT);
+    _grabber.load("rtmp://192.168.0.115:1935/live/1");
+    _grabber.play();
 }
+
+// void ofApp::initGrabber () {
+//     //we can now get back a list of devices.
+//     vector<ofVideoDevice> devices = _grabber.listDevices();
+    
+//     //
+//     // show info and
+//     // set DV-VCR as video input device
+//     //
+//     bool found = false;
+    
+//     ofLogNotice() << "Webcams:";
+
+//     for(int i = 0; i < devices.size(); i++){
+//         ofLogNotice() << devices[i].id  << ": '" << devices[i].deviceName << "'";
+//         if( devices[i].bAvailable ){
+//             // set device to GoPro
+//             if (string("'GoPro'").compare(devices[i].deviceName) == 0) {
+//                 ofLogNotice() << "setting webcam to Gopro";
+//                 _grabber.setDeviceID(i);
+//                 found = true;
+//             }
+//         } else {
+//             ofLogNotice() << devices[i].deviceName << " is unavailable";
+//         }
+        
+//         // debug formats
+// //        vector<ofVideoFormat> formats = devices[i].formats;
+// //        for (auto j : formats) {
+// //            cout << "\twidth: " << j.width << " height: " << j.height << endl;
+// //        }
+        
+// //        grabber.setDesiredFrameRate(25);
+//     }
+    
+//     if (!found) {
+//         ofLogWarning() << "GoPro was not found. Fallback to device ID=0";
+//         _grabber.setDeviceID(0);
+//     }
+    
+//     _grabber.initGrabber(GRAB_WIDTH, GRAB_HEIGHT);
+// }
 
 int ofApp::getLeftTopX () {
     return (ofGetWidth() - GRAB_WIDTH) / 2;
@@ -316,8 +321,6 @@ void ofApp::initGui () {
     _gui.add(_detailMaskWhite.setup("detail mask white", _greenscreen.clipWhiteDetailMask, 0.0, 1.f));
     _gui.add(_endMaskBlack.setup("end mask black", _greenscreen.clipBlackEndMask, 0.0, 1.f));
     _gui.add(_endMaskWhite.setup("end mask white", _greenscreen.clipWhiteEndMask, 0.0, 1.f));
-        
-    
 
     // _gui->addToggle("Enable bkg color picker", &_bkgColorPickerEnabled);
     // _gui->addLabel("bkg color");
@@ -352,6 +355,7 @@ void ofApp::updateGrabber () {
     }
 
     _grabber.update();  
+
     
     if(_grabber.isFrameNew()) {
         _greenscreen.setPixels(_grabber.getPixelsRef());
