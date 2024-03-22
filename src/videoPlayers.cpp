@@ -150,10 +150,11 @@ void videoPlayers::addVideoPlayer (const string& path) {
     LOG_VP_NOTICE() << "add video: " + path;
 
     ofVideoPlayer* result = new ofVideoPlayer();
-    result->loadAsync(path);
+    result->load(path);
     result->setLoopState(OF_LOOP_NONE);
     // mute
     result->setVolume(0);
+    result->setSpeed(1);
     
     _players.push_back(result);
 }
