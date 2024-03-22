@@ -69,6 +69,8 @@ void videoPlayers::update () {
     if (!_isPlaying) {
         return;
     }
+
+    LOG_VP_NOTICE() << "update: video position: " << current()->getPosition();
    
    // prepare new movie
     if (ofInRange(current()->getPosition(), 0.8, 0.9)) {
@@ -104,7 +106,7 @@ void videoPlayers::start () {
 
     // silently sync with global players state
     if (_isPlaying) {
-        current()->setPosition(0);
+        //current()->setPosition(0);
         current()->play();
         return;
     }
@@ -112,7 +114,7 @@ void videoPlayers::start () {
     LOG_VP_NOTICE() << "start playing video: " << getCurrentMovieName();
 
     _isPlaying = true;
-    current()->setPosition(0);
+    //current()->setPosition(0);
     current()->play();
 }
 
@@ -205,7 +207,9 @@ bool videoPlayers::goToVideo(int newPlayerIndex) {
         return false;
     }
 
-    current()->stop();
+    if (current()->isPlaying()) {
+        current()->stop();
+    }
 
     _curPlayerIndex = newPlayerIndex;
     _needToSwapMovies = false;

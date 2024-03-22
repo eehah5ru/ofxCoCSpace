@@ -350,6 +350,7 @@ void ofApp::updateGui () {
 
 
 void ofApp::updateGrabber () {
+    
     if (!_cameraEnabled) {
         return;
     }
