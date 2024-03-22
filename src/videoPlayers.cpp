@@ -104,16 +104,16 @@ void videoPlayers::start () {
 
     // silently sync with global players state
     if (_isPlaying) {
-        current()->play();
         current()->setPosition(0);
+        current()->play();
         return;
     }
 
     LOG_VP_NOTICE() << "start playing video: " << getCurrentMovieName();
 
     _isPlaying = true;
-    current()->play();
     current()->setPosition(0);
+    current()->play();
 }
 
 void videoPlayers::stop () {
