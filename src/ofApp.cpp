@@ -5,7 +5,7 @@ void ofApp::setup(){
     ofLogNotice() << "setup: start";
 
     // prepare to render in framebuffer
-	_fbo.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
+    _fbo.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
     _fboCam.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
 
     ofSetWindowTitle("CoCkeyer");
@@ -19,8 +19,17 @@ void ofApp::setup(){
     try {
         initGui();
         initGrabber();
+	//
+        // mp4
+        // 
         _cocRecorderCam.init("cam.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
         _cocRecorderAll.init("all.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
+	//
+	// raw
+	// 
+	// _cocRecorderCam.init("cam.raw", {GRAB_WIDTH, GRAB_HEIGHT});
+        // _cocRecorderAll.init("all.raw", {GRAB_WIDTH, GRAB_HEIGHT});
+
 
         _videoPlayers.initPlayers("bkgs");
         _greenscreen.setPixels(_grabber.getPixelsRef());    
@@ -251,7 +260,9 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // 
 
 void ofApp::initGrabber () {
-    _grabber.load("rtmp://192.168.0.115:1935/live/1");
+    // _grabber.load("rtmp://192.168.0.115:1935/live/1");
+  _grabber.load("rtmp://192.168.3.4:1935/live/1");
+
     _grabber.play();
 }
 
