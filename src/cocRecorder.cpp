@@ -13,15 +13,16 @@ cocRecorder::~cocRecorder () {
 }
 
 void cocRecorder:: init () {
-    init("output.mp4", {640, 480});
+  init("recordings", "output.mp4", {640, 480});
 }
 
-void cocRecorder::init (string baseName, glm::ivec2 videoResolution) {
+void cocRecorder::init (string path, string baseName, glm::ivec2 videoResolution) {
     LOG_COCR() << "initializing";
 
     _baseName = baseName;
+    _path = path;
 
-    _recorderSettings.outputPath = ofGetTimestampString() + "_" + _baseName;
+    _recorderSettings.outputPath = _path + "/" + ofGetTimestampString() + "_" + _baseName;
     _recorderSettings.videoResolution = videoResolution;
 }
 
@@ -46,7 +47,7 @@ void cocRecorder::start () {
     }
     LOG_COCR() << "start";
     // name of the file with actual timestamp  
-    _recorderSettings.outputPath = ofGetTimestampString() + "_" + _baseName;
+    _recorderSettings.outputPath = _path + "/" + ofGetTimestampString() + "_" + _baseName;
     
     _recorder.start(_recorderSettings);
  

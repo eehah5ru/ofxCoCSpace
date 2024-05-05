@@ -20,7 +20,7 @@ class cocRecorder {
     ~cocRecorder();
 
     void init();
-    void init (string path, glm::ivec2 videoResolution);
+  void init (string path, string baseName, glm::ivec2 videoResolution);
 
     void addFrame(ofFbo &fbo);
 
@@ -35,6 +35,7 @@ class cocRecorder {
 
     private:
 
+  std::string _path = "recordings";
     std::string _baseName = "output.mp4";
 
     ofxFFmpeg::Recorder _recorder;
