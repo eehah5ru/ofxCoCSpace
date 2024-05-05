@@ -40,11 +40,18 @@ public:
     void dragEvent(ofDragInfo dragInfo) override;
     void gotMessage(ofMessage msg) override;
 
-    private:
+private:
 // attrs
     ofxGreenscreen      _greenscreen;
-    //ofVideoGrabber      _grabber;
-    ofVideoPlayer       _grabber;
+#ifdef REMOTE_CAM
+  ofVideoPlayer       _grabber;
+#elif defined(LOCAL_CAM)
+  ofVideoGrabber      _grabber;
+#else
+    #error either LOCAL_CAM or REMOTE_CAM should be defined
+#endif    
+  
+
     
     videoPlayers        _videoPlayers;
 

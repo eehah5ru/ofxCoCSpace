@@ -22,8 +22,8 @@ void ofApp::setup(){
 	//
         // mp4
         // 
-        _cocRecorderCam.init("cam.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
-        _cocRecorderAll.init("all.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
+        _cocRecorderCam.init("recordings", "cam.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
+        _cocRecorderAll.init("recordings", "all.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
 	//
 	// raw
 	// 
@@ -260,53 +260,55 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // 
 
 void ofApp::initGrabber () {
+#ifdef REMOTE_CAM  
     // _grabber.load("rtmp://192.168.0.115:1935/live/1");
   _grabber.load("rtmp://192.168.3.4:1935/live/1");
 
-    _grabber.play();
+  _grabber.play();
+#elif defined(LOCAL_CAM)
+    //we can now get back a list of devices.
+    vector<ofVideoDevice> devices = _grabber.listDevices();
+    
+    //
+    // show info and
+    // set DV-VCR as video input device
+    //
+    bool found = false;
+    
+    LOG_APP_NOTICE() << "Webcams:";
+
+    for(int i = 0; i < devices.size(); i++){
+      LOG_APP_NOTICE() << devices[i].id  << ": '" << devices[i].deviceName << "'";
+      if( devices[i].bAvailable ){
+        // set device to GoPro
+        if (string("'GoPro'").compare(devices[i].deviceName) == 0) {
+          LOG_APP_NOTICE() << "setting webcam to Gopro";
+          _grabber.setDeviceID(i);
+          found = true;
+        }
+      } else {
+        LOG_APP_NOTICE() << devices[i].deviceName << " is unavailable";
+      }
+        
+        // debug formats
+//        vector<ofVideoFormat> formats = devices[i].formats;
+//        for (auto j : formats) {
+//            cout << "\twidth: " << j.width << " height: " << j.height << endl;
+//        }
+        
+//        grabber.setDesiredFrameRate(25);
+    }
+    
+    if (!found) {
+      LOG_APP_WARNING() << "GoPro was not found. Fallback to device ID=0";
+      _grabber.setDeviceID(0);
+    }
+    
+    _grabber.initGrabber(GRAB_WIDTH, GRAB_HEIGHT);
+#else
+    #error either LOCAL_CAM or REMOTE_CAM should be defined
+#endif    
 }
-
-// void ofApp::initGrabber () {
-//     //we can now get back a list of devices.
-//     vector<ofVideoDevice> devices = _grabber.listDevices();
-    
-//     //
-//     // show info and
-//     // set DV-VCR as video input device
-//     //
-//     bool found = false;
-    
-//     ofLogNotice() << "Webcams:";
-
-//     for(int i = 0; i < devices.size(); i++){
-//         ofLogNotice() << devices[i].id  << ": '" << devices[i].deviceName << "'";
-//         if( devices[i].bAvailable ){
-//             // set device to GoPro
-//             if (string("'GoPro'").compare(devices[i].deviceName) == 0) {
-//                 ofLogNotice() << "setting webcam to Gopro";
-//                 _grabber.setDeviceID(i);
-//                 found = true;
-//             }
-//         } else {
-//             ofLogNotice() << devices[i].deviceName << " is unavailable";
-//         }
-        
-//         // debug formats
-// //        vector<ofVideoFormat> formats = devices[i].formats;
-// //        for (auto j : formats) {
-// //            cout << "\twidth: " << j.width << " height: " << j.height << endl;
-// //        }
-        
-// //        grabber.setDesiredFrameRate(25);
-//     }
-    
-//     if (!found) {
-//         ofLogWarning() << "GoPro was not found. Fallback to device ID=0";
-//         _grabber.setDeviceID(0);
-//     }
-    
-//     _grabber.initGrabber(GRAB_WIDTH, GRAB_HEIGHT);
-// }
 
 int ofApp::getLeftTopX () {
     return (ofGetWidth() - GRAB_WIDTH) / 2;
