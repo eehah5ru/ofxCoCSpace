@@ -24,7 +24,7 @@ void videoPlayers::initPlayers(string basePath) {
     _basePath = basePath;
 
     if (!goToFolder(_currentDirIndex)) {
-        throw runtime_error("initPlayers: failed");
+      throw std::runtime_error("initPlayers: failed");
     }
 
     _initialized = true;
@@ -44,14 +44,14 @@ void videoPlayers::free () {
 ofVideoPlayer* videoPlayers::current() {
     if (_players.size() == 0) {
         LOG_VP_ERROR() << "current: no current video!";
-        throw out_of_range("current: no current video");
+        throw std::out_of_range("current: no current video");
     }
 
     if (_players.size() <= _curPlayerIndex) {
         LOG_VP_ERROR() << "current: _curPlayerIndex is too big";
         LOG_VP_ERROR() << "_curPlayerIndex = " << _curPlayerIndex;
         LOG_VP_ERROR() << "videos count: " << _players.size();
-        throw out_of_range("current: _curPlayerIndex is too big");
+        throw std::out_of_range("current: _curPlayerIndex is too big");
     }
 
     return _players.at(_curPlayerIndex);
