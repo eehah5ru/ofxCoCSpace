@@ -70,7 +70,11 @@ void videoPlayers::update () {
         return;
     }
 
-    LOG_VP_NOTICE() << "update: video position: " << current()->getPosition();
+    //LOG_VP_NOTICE() << "update: video position: " << current()->getPosition() << ", speed: " << current()->getSpeed();
+
+    if (!current()->isLoaded()) {
+      return;
+    }
    
    // prepare new movie
     if (ofInRange(current()->getPosition(), 0.8, 0.9)) {
@@ -86,14 +90,15 @@ void videoPlayers::update () {
     }
     
     if (current()->isLoaded() && _isPlaying && !current()->isPlaying()) {
+      LOG_VP_NOTICE() << "update: force starting video";
         start();
     }
 
-    if (_isPlaying) {
-        current()->play();
-    } else {
-        current()->stop();
-    }
+    // if (_isPlaying) {
+    //     current()->play();
+    // } else {
+    //     current()->stop();
+    // }
 
     
     current()->update();
@@ -106,16 +111,17 @@ void videoPlayers::start () {
 
     // silently sync with global players state
     if (_isPlaying) {
-        //current()->setPosition(0);
         current()->play();
+        current()->setPosition(0.0f);	
         return;
     }
 
     LOG_VP_NOTICE() << "start playing video: " << getCurrentMovieName();
 
     _isPlaying = true;
-    //current()->setPosition(0);
     current()->play();
+    current()->setPosition(0.0f);
+    
 }
 
 void videoPlayers::stop () {
@@ -155,8 +161,11 @@ void videoPlayers::addVideoPlayer (const string& path) {
     result->load(path);
     result->setLoopState(OF_LOOP_NONE);
     // mute
-    result->setVolume(0);
-    result->setSpeed(1);
+    result->setVolume(0.0f);
+    result->setSpeed(1.0f);
+    result->play();
+    result->stop();
+    // result->setPosition(0.0f);
     
     _players.push_back(result);
 }
@@ -175,6 +184,8 @@ bool videoPlayers::goToFolder(int dirIndex) {
 
     dir.allowExt("mov");
     dir.allowExt("mp4");
+    dir.allowExt("m4v");
+
     
     dir.listDir(); 
 
