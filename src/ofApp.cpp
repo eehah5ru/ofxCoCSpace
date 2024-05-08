@@ -7,7 +7,8 @@ void ofApp::setup(){
     // prepare to render in framebuffer
     _fbo.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
     _fboCam.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
-
+    _fboSubs.allocate(GRAB_WIDTH, GRAB_HEIGHT, GL_RGBA);
+    
     ofSetWindowTitle("CoCkeyer");
     ofBackground(0,0,0);
     ofSetFrameRate(30);
@@ -19,19 +20,21 @@ void ofApp::setup(){
     try {
         initGui();
         initGrabber();
-	//
+        //
         // mp4
         // 
         _cocRecorderCam.init("recordings", "cam.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
         _cocRecorderAll.init("recordings", "all.mp4", {GRAB_WIDTH, GRAB_HEIGHT});
-	//
-	// raw
-	// 
-	// _cocRecorderCam.init("cam.raw", {GRAB_WIDTH, GRAB_HEIGHT});
+        //
+        // raw
+        // 
+        // _cocRecorderCam.init("cam.raw", {GRAB_WIDTH, GRAB_HEIGHT});
         // _cocRecorderAll.init("all.raw", {GRAB_WIDTH, GRAB_HEIGHT});
 
 
         _videoPlayers.initPlayers("bkgs");
+        _subs.init("subs");
+        
         _greenscreen.setPixels(_grabber.getPixelsRef());    
 
         ofLogNotice() << "setup: done";        
@@ -47,8 +50,10 @@ void ofApp::update(){
     updateGrabber();
 
     _videoPlayers.update();
-
+    _subs.update();
+    
     _status.update();
+    _subsStatus.update();
 
 
     //ofLogNotice() << "width: " << ofGetWidth();
@@ -76,8 +81,8 @@ void ofApp::draw(){
    
     _cocRecorderCam.addFrame(_fboCam);
 
-    // draw into the fbo
-	_fbo.begin();
+    // draw everything into the fbo
+    _fbo.begin();
     {
         // drawing relative to fbo
         _videoPlayers.current()->draw(0, 0);
@@ -85,6 +90,12 @@ void ofApp::draw(){
         if (_cameraEnabled) {
             _greenscreen.draw(0, 0, GRAB_WIDTH, GRAB_HEIGHT, false);
         }
+
+        // relaltive to fbo
+        _subs.draw(0, 0);
+        
+
+        
     }
     _fbo.end();
 
@@ -94,15 +105,19 @@ void ofApp::draw(){
 
     ofPushStyle();
 
-	ofSetColor( _cocRecorderCam.getColoredStatus());
-	ofDrawCircle( getLeftTopX() + 15, getLeftTopY() + 15, 10 );
+    ofSetColor( _cocRecorderCam.getColoredStatus());
+    ofDrawCircle( getLeftTopX() + 15, getLeftTopY() + 15, 10 );
 
     ofSetColor( _cocRecorderAll.getColoredStatus());
-	ofDrawCircle( getLeftTopX() + 40, getLeftTopY() + 15, 10 );
+    ofDrawCircle( getLeftTopX() + 40, getLeftTopY() + 15, 10 );
 
-	ofPopStyle();
+    ofPopStyle();
 
+    // video players status
     _status.draw(getLeftTopX() + 65, getLeftTopY() + 15); 
+
+    // subs status
+    _status.draw(getLeftTopX() + 90, getLeftTopY() + 15); 
 
 
     if (_guiVisible) {
@@ -132,10 +147,6 @@ void ofApp::keyPressed(int key){
         _mouseVisible = !_mouseVisible;
     }
 
-    if (key == 'n') {
-        _videoPlayers.changePlayer();
-    }
-
     if (key == 'f') {
         ofToggleFullscreen();
     }
@@ -155,15 +166,18 @@ void ofApp::keyReleased(int key){
         _greenscreen.learnBgColor(_grabber.getPixelsRef());
     }
 
-    if (key == 'p') {
-        _videoPlayers.togglePlay();        
-    }
-
     if (key == 'r') {
         _cocRecorderAll.toggleRecording();
         _cocRecorderCam.toggleRecording();
     }
 
+    //
+    // video players ctrls
+    // 
+    if (key == 'p') {
+        _videoPlayers.togglePlay();        
+    }
+    
     if (key == 'j') {
         _status.compose(_videoPlayers.goToPrevFolder());
     }
@@ -179,6 +193,44 @@ void ofApp::keyReleased(int key){
     if (key == 'l') {
         _status.compose(_videoPlayers.goToNextVideo());
     }
+
+    if (key == 'n') {
+        _videoPlayers.changePlayer();
+    }
+
+    //
+    // subs ctrls
+    // the same as for video but in caps
+    // 
+    if (key == 'P') {
+      _subs.getPlayers().togglePlay();        
+    }
+    
+    if (key == 'J') {
+      _subsStatus.compose(_subs.getPlayers().goToPrevFolder());
+    }
+
+    if (key == 'K') {
+        _subsStatus.compose(_subs.getPlayers().goToNextFolder());
+    }
+
+    if (key == 'H') {
+        _subsStatus.compose(_subs.getPlayers().goToPrevVideo());
+    }
+
+    if (key == 'L') {
+        _subsStatus.compose(_subs.getPlayers().goToNextVideo());
+    }
+
+    if (key == 'N') {
+        _subs.getPlayers().changePlayer();
+    }
+
+    //
+    // end subs ctrls
+    // 
+    
+    
 
     // toggle camera grabber
     if (key == 'c') {
@@ -210,8 +262,7 @@ void ofApp::mouseDragged(int x, int y, int button){
     if(x == _dragStart.x || y == _dragStart.y) {
         return;
     }
-    
-    
+        
     _greenscreen.learnBgColor(_grabber.getPixelsRef(), _dragStart.x, _dragStart.y, x - _dragStart.x, y - _dragStart.y);
 }
 

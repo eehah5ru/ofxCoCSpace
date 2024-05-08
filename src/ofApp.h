@@ -6,6 +6,7 @@
 
 #include "videoPlayers.h"
 #include "cocRecorder.h"
+#include "Subs.h"
 #include "utils.h"
 
 
@@ -53,14 +54,17 @@ private:
   
 
     
-    videoPlayers        _videoPlayers;
+  videoPlayers        _videoPlayers;
 
+  Subs _subs;
     cocRecorder         _cocRecorderCam;
     cocRecorder         _cocRecorderAll;
 
     // gonna render to framebuffer;
     ofFbo               _fbo;
     ofFbo               _fboCam;
+  ofFbo _fboSubs;
+
     
     bool                _needToSwapMovies;    
     bool                _bkgColorPickerEnabled;
@@ -68,8 +72,11 @@ private:
     bool _guiVisible;
     bool _cameraEnabled = true; // enabled by default
 
+  // videoPlayers status
     Status _status = Status::neutral();
 
+  Status _subsStatus = Status::neutral();
+  
     ofPoint _dragStart;
     ofPoint _greenPixelPos;
 
