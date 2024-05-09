@@ -72,3 +72,8 @@ void Subs::draw (int x, int y) {
 
   _shader.end();
 }
+
+void Subs::toggleVisibility() {
+  _isVisible = !_isVisible;
+  _players.current()->setPaused(_isVisible);  
+}

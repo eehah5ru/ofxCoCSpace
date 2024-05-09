@@ -27,10 +27,14 @@ class Subs {
 
   void draw (int x, int y);
 
+  void toggleVisibility ();
+
  private:
   videoPlayers _players;
   
   ofTexture _texture;
   ofShader _shader;
-  
+
+  // visible by default
+  bool _isVisible = true;
 };
