@@ -125,16 +125,31 @@ RemoteCamera::~RemoteCamera() {
 // }
 
 void RemoteCamera::init() {
+  LOG_CAM() << "init: remote camera";
+  
   // _grabber.load("rtmp://192.168.0.115:1935/live/1");
   // _grabber.load("");
 
   // _grabber.play();
 
-  // starting from stream 1
-  reinit(1);
+  // first stream by default
+  string streamIndex = ofGetEnv("STREAM_INDEX", "1");
+  string host = "192.168.3.4:1935";
+  string url = string_format("rtmp://%s/live/%s", host.c_str(), streamIndex.c_str());
+
+  LOG_CAM() << "init: cam url: " << url;
+  
+  // _grabber.stop();
+  // _grabber.close();
+  _grabber.load(url);
+  _grabber.play();
+
+  LOG_CAM() << "init: done";
+  
 }
 
 void RemoteCamera::reinit (int index) {
+  throw std::runtime_error("RemoteCamera::reinit broken");
   string host = "192.168.3.4:1935";
   string url = string_format("rtmp://%s/live/%d", host.c_str(), index);
 
