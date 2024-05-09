@@ -136,7 +136,7 @@ void RemoteCamera::init() {
 
 void RemoteCamera::reinit (int index) {
   string host = "192.168.3.4:1935";
-  string url = string_format("rtmp://%s/live/%d", host, index);
+  string url = string_format("rtmp://%s/live/%d", host.c_str(), index);
 
   
   _grabber.stop();
