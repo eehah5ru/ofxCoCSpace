@@ -31,4 +31,6 @@ class Subs {
   videoPlayers _players;
   
   ofTexture _texture;
+  ofShader _shader;
+  
 };

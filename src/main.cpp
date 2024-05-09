@@ -19,13 +19,6 @@ void setupGstPlugins () {
 //========================================================================
 int main( ){
 
-#ifdef LOCAL_CAM
-  LOG_APP_NOTICE() << "using local camera";
-#endif
-
-#ifdef REMOTE_CAM
-  LOG_APP_NOTICE() << "using remote camera";
-#endif
     //Use ofGLFWWindowSettings for more options like multi-monitor fullscreen
     ofEnableGLDebugLog();
     ofGLFWWindowSettings settings;
@@ -35,6 +28,8 @@ int main( ){
     //settings.windowMode =  OF_WINDOW;
     //  settings.width = GRAB_WIDTH;
 
+    settings.setGLVersion(3,2);
+    
     auto window = ofCreateWindow(settings);
 
     setupGstPlugins();
