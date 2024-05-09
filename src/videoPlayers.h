@@ -42,7 +42,7 @@ public:
 
     string getCurrentMovieName ();
     
-    void changePlayer ();
+    bool changePlayer ();
 
     bool goToPrevVideo();
     bool goToNextVideo();

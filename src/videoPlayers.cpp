@@ -69,8 +69,8 @@ void videoPlayers::update () {
     if (!_isPlaying) {
         return;
     }
-
-    //LOG_VP_NOTICE() << "update: video position: " << current()->getPosition() << ", speed: " << current()->getSpeed();
+    
+    // LOG_VP_NOTICE() << "update: video position: " << std::format("{}", current()->getPosition()) << ", speed: " << current()->getSpeed();
 
     if (!current()->isLoaded()) {
       return;
@@ -81,12 +81,12 @@ void videoPlayers::update () {
         _needToSwapMovies = true;
     }
     
-    if (ofInRange(current()->getPosition(), 0.99, 1)) {
-        if (_needToSwapMovies) {
-            if ((!goToNextVideo() || goToVideo(0))) {
-                LOG_VP_WARNING() << "update: failed to go to the next video";
-            }
-        }
+    // if (_needToSwapMovies && ofInRange(current()->getPosition(), 0.99, 1)) {
+    if (current()->getIsMovieDone()) {
+      // changing video: either next or first
+      if (!changePlayer()) {
+        LOG_VP_WARNING() << "update: failed to go to the next video";
+      }      
     }
     
     if (current()->isLoaded() && _isPlaying && !current()->isPlaying()) {
@@ -111,9 +111,10 @@ void videoPlayers::start () {
 
     // silently sync with global players state
     if (_isPlaying) {
-        current()->play();
-        current()->setPosition(0.0f);	
-        return;
+      LOG_VP_NOTICE() << "synchronising video playing state with global isPlaying";
+      current()->play();
+      current()->setPosition(0.0f);	
+      return;
     }
 
     LOG_VP_NOTICE() << "start playing video: " << getCurrentMovieName();
@@ -148,9 +149,9 @@ void videoPlayers::togglePlay () {
  
 
 
-void videoPlayers::changePlayer() {
+bool videoPlayers::changePlayer() {
     LOG_VP_NOTICE() << "rendomely changing video";
-    goToVideo(ofRandom(0, _players.size()));
+    return goToVideo(ofRandom(0, _players.size()));
 }
 
 
