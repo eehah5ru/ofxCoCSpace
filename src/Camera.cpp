@@ -1,10 +1,12 @@
 #include "Camera.h"
 #include "ofApp.h"
+#include "utils.h"
 #include "ofGraphicsBaseTypes.h"
 #include "ofUtils.h"
 #include "ofVideoBaseTypes.h"
+#include <cstdio>
 #include <cstring>
-#include <format>
+// #include <format>
 #include <memory>
 #include <stdexcept>
 // #include <cstring>
@@ -88,7 +90,7 @@ void LocalCamera::init () {
 }
 
 void LocalCamera::reinit(int index) {
-  throw runtime_error("LocalCamera::reinit - unimplemented");
+  throw std::runtime_error("LocalCamera::reinit - unimplemented");
 }
 
 void LocalCamera::update() {
@@ -134,8 +136,9 @@ void RemoteCamera::init() {
 
 void RemoteCamera::reinit (int index) {
   string host = "192.168.3.4:1935";
-  string url = format("rtmp://{}/live/{}", host, index);
+  string url = string_format("rtmp://%s/live/%d", host, index);
 
+  
   _grabber.stop();
   _grabber.close();
   _grabber.load(url);
