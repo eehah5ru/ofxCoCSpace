@@ -19,7 +19,8 @@ void ofApp::setup(){
 
     try {
         initGui();
-        initGrabber();
+        _camera.get()->init();
+
         //
         // mp4
         // 
@@ -35,7 +36,7 @@ void ofApp::setup(){
         _videoPlayers.initPlayers("bkgs");
         _subs.init("subs");
         
-        _greenscreen.setPixels(_grabber.getPixelsRef());    
+        _greenscreen.setPixels(_camera.get()->getPixelsRef());
 
         ofLogNotice() << "setup: done";        
     } catch (std::runtime_error& e) {
@@ -71,10 +72,10 @@ void ofApp::draw(){
     ofSetColor(255);
 
     _fboCam.begin();
-    {
+    { 
         if (_cameraEnabled) {
             // relative to fbo!!       
-            _grabber.draw(0, 0);
+          _camera.get()->draw(0, 0);
         }
     }
     _fboCam.end();
@@ -163,7 +164,7 @@ void ofApp::keyReleased(int key){
     
     // ok. lets do it
     if(key == ' ') {
-        _greenscreen.learnBgColor(_grabber.getPixelsRef());
+      _greenscreen.learnBgColor(_camera.get()->getPixelsRef());
     }
 
     if (key == 'r') {
@@ -230,13 +231,27 @@ void ofApp::keyReleased(int key){
     // end subs ctrls
     // 
     
-    
+
+    //
+    // CAMERA CTRLS
+    // 
 
     // toggle camera grabber
     if (key == 'c') {
         _cameraEnabled = !_cameraEnabled;
         LOG_APP_NOTICE() << "toggled camera " << _cameraEnabled;
     }
+
+    //
+    // reinit camera with device/stream num
+    // 
+    vector<char> keys = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+
+    if (find(keys.begin(), keys.end(), key) != keys.end()) {
+      int keyIndex = key - '0';
+      _camera.get()->reinit(keyIndex);
+    }
+      
 }
 
 //--------------------------------------------------------------
@@ -263,7 +278,7 @@ void ofApp::mouseDragged(int x, int y, int button){
         return;
     }
         
-    _greenscreen.learnBgColor(_grabber.getPixelsRef(), _dragStart.x, _dragStart.y, x - _dragStart.x, y - _dragStart.y);
+    _greenscreen.learnBgColor(_camera.get()->getPixelsRef(), _dragStart.x, _dragStart.y, x - _dragStart.x, y - _dragStart.y);
 }
 
 //--------------------------------------------------------------
@@ -309,57 +324,6 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 // 
 // methods
 // 
-
-void ofApp::initGrabber () {
-#ifdef REMOTE_CAM  
-    // _grabber.load("rtmp://192.168.0.115:1935/live/1");
-  _grabber.load("rtmp://192.168.3.4:1935/live/1");
-
-  _grabber.play();
-#elif defined(LOCAL_CAM)
-    //we can now get back a list of devices.
-    vector<ofVideoDevice> devices = _grabber.listDevices();
-    
-    //
-    // show info and
-    // set DV-VCR as video input device
-    //
-    bool found = false;
-    
-    LOG_APP_NOTICE() << "Webcams:";
-
-    for(int i = 0; i < devices.size(); i++){
-      LOG_APP_NOTICE() << devices[i].id  << ": '" << devices[i].deviceName << "'";
-      if( devices[i].bAvailable ){
-        // set device to GoPro
-        if (string("'GoPro'").compare(devices[i].deviceName) == 0) {
-          LOG_APP_NOTICE() << "setting webcam to Gopro";
-          _grabber.setDeviceID(i);
-          found = true;
-        }
-      } else {
-        LOG_APP_NOTICE() << devices[i].deviceName << " is unavailable";
-      }
-        
-        // debug formats
-//        vector<ofVideoFormat> formats = devices[i].formats;
-//        for (auto j : formats) {
-//            cout << "\twidth: " << j.width << " height: " << j.height << endl;
-//        }
-        
-//        grabber.setDesiredFrameRate(25);
-    }
-    
-    if (!found) {
-      LOG_APP_WARNING() << "GoPro was not found. Fallback to device ID=0";
-      _grabber.setDeviceID(0);
-    }
-    
-    _grabber.initGrabber(GRAB_WIDTH, GRAB_HEIGHT);
-#else
-    #error either LOCAL_CAM or REMOTE_CAM should be defined
-#endif    
-}
 
 int ofApp::getLeftTopX () {
     return (ofGetWidth() - GRAB_WIDTH) / 2;
@@ -419,11 +383,11 @@ void ofApp::updateGrabber () {
         return;
     }
 
-    _grabber.update();  
+    _camera.get()->update();  
 
     
-    if(_grabber.isFrameNew()) {
-        _greenscreen.setPixels(_grabber.getPixelsRef());
+    if(_camera.get()->isFrameNew()) {
+      _greenscreen.setPixels(_camera.get()->getPixelsRef());
     }
 }
 

@@ -7,6 +7,7 @@
 #include "videoPlayers.h"
 #include "cocRecorder.h"
 #include "Subs.h"
+#include "Camera.h"
 #include "utils.h"
 
 
@@ -44,15 +45,9 @@ public:
 private:
 // attrs
     ofxGreenscreen      _greenscreen;
-#ifdef REMOTE_CAM
-  ofVideoPlayer       _grabber;
-#elif defined(LOCAL_CAM)
-  ofVideoGrabber      _grabber;
-#else
-    #error either LOCAL_CAM or REMOTE_CAM should be defined
-#endif    
-  
 
+  shared_ptr<Camera> _camera = Camera::createCamera();
+  bool _cameraEnabled = true;
     
   videoPlayers        _videoPlayers;
 
@@ -70,7 +65,6 @@ private:
     bool                _bkgColorPickerEnabled;
     bool                _mouseVisible;
     bool _guiVisible;
-    bool _cameraEnabled = true; // enabled by default
 
   // videoPlayers status
     Status _status = Status::neutral();
